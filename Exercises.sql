@@ -58,7 +58,30 @@ and OI.product_id = N.product_id;
 select * from order_items OI,order_item_notes N 
 where OI.order_id = N.order_Id and OI.product_id = N.product_id;
 
---22 
+--22 join is inner join and left and right join are outer join
+select P.product_id,name,quantity from products P left join order_items OI 
+on  P.product_id = OI.product_id
 
+--23 nesting two outer joins(best practise to use left join)
+select order_date,order_id,first_name,SH.name,OS.name from orders O join customers C
+on O.customer_id = C.customer_id left join shippers SH on SH.shipper_id = O.shipper_id
+join order_statuses OS on OS.order_status_id = O.status;
+
+--24 Self Outer joins
+select emp.employee_id,emp.first_name,mngr.first_name as manager from [sql_hr].[dbo].[employees] emp 
+left join [sql_hr].[dbo].[employees] mngr on emp.reports_to = mngr.employee_id;
+
+--25 cross joins produces M x N products
+--Implicit
+select * from customers C cross join products P;
+--Explicit
+select * from customers C, products P;
+
+--26 Union(does not contain duplicates) and union all
+select first_name,points,'Elite' as type from customers where points <= 1000
+union
+-- order, type and number of columns should be same name of first sun query taken
+select first_name,points,'Elite Pro' as sfdf from customers where points >1000
+order by first_name;
 
 
