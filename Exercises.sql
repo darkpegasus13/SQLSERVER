@@ -83,5 +83,3 @@ union
 -- order, type and number of columns should be same name of first sun query taken
 select first_name,points,'Elite Pro' as sfdf from customers where points >1000
 order by first_name;
-
-
