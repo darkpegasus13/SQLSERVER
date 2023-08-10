@@ -83,3 +83,28 @@ union
 -- order, type and number of columns should be same name of first sun query taken
 select first_name,points,'Elite Pro' as sfdf from customers where points >1000
 order by first_name;
+
+--27 Insert here we can change order of fields
+insert into customers (first_name,last_name) values ('jayesh','bhushan')
+--here orders needs to be same
+insert into customers values('jayesh','bhushan')
+
+--28 Multiple Insert
+insert into products values('d',2,3)
+insert into shippers values('shipper 1')
+
+--29 Gets Last insert id but if insert happen at another table it will be different
+-- better use output clause to get the id
+select SCOPE_IDENTITY();
+select @@Identity;
+select ident_current('products');
+INSERT INTO shippers OUTPUT INSERTED.shipper_id VALUES ('Shipper 2');
+
+--30 Copying a table only copies structure and data no constraints
+SELECT * INTO product_archived FROM products;
+--Conditional creation
+Select *
+into invoice_archived from 
+(Select invoice_id, number, name as client,invoice_total,payment_total,invoice_date,payment_date,due_date
+from sql_invoicing.dbo.invoices i join sql_invoicing.dbo.clients c 
+on i.client_id = c.client_id where payment_date is not null) temp;
