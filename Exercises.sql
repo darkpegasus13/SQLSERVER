@@ -108,3 +108,32 @@ into invoice_archived from
 (Select invoice_id, number, name as client,invoice_total,payment_total,invoice_date,payment_date,due_date
 from sql_invoicing.dbo.invoices i join sql_invoicing.dbo.clients c 
 on i.client_id = c.client_id where payment_date is not null) temp;
+
+--31 update multi rows
+update customers set points = points+50 where birth_date<'1990-01-01'
+
+--32 update with subquery query in () is executed first
+update orders set comments = 'Gold Customer' where customer_id IN
+(select customer_id from customers where points>3000);
+
+--33 aggregate functions count does not include null column use count(*) to do that
+select 'First half of 2019' as duration,sum(invoice_total) as total_sales,sum(payment_total) as total_payment,
+sum(invoice_total-payment_total) as expected
+from sql_invoicing.dbo.invoices where due_date between '2019-01-01' and '2019-06-30'
+union
+select 'Second half of 2019' as duration,sum(invoice_total) as total_sales,sum(payment_total) as total_payment,
+sum(invoice_total-payment_total) as expected
+from sql_invoicing.dbo.invoices where due_date between '2019-07-01' and '2019-12-31'
+union 
+select 'Total' as duration,sum(invoice_total) as total_sales,sum(payment_total) as total_payment,
+sum(invoice_total-payment_total) as expected
+from sql_invoicing.dbo.invoices where due_date between '2019-01-01' and '2019-12-31'
+
+--34 order and group by (check why not working correctly)
+select date,payment_methods.name,temp.amt from payment_methods right join 
+(select date,payment_id,SUM(amount) as amt from payments 
+group by date,payment_id) temp
+on temp.payment_id = payment_methods.payment_method_id
+order by date;
+
+--35 
