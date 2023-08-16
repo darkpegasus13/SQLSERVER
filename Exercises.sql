@@ -136,4 +136,16 @@ group by date,payment_id) temp
 on temp.payment_id = payment_methods.payment_method_id
 order by date;
 
---35 
+--35 having clause (with having clause we filter after the rows are grouped 
+--whereas in where rows are used before grouping)
+select C.customer_id,SUM(quantity*unit_price) as total from customers C
+join orders O on O.customer_id = C.customer_id
+join order_items OI on O.order_id = OI.order_id
+where state = 'VA'
+group by C.customer_id
+having SUM(quantity*unit_price) >100
+
+--36 Rollup
+select name,SUM(amount) from payments P
+join payment_methods PM on PM.payment_method_id = P.payment_method
+group by name with rollup
