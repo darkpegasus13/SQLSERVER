@@ -149,3 +149,46 @@ having SUM(quantity*unit_price) >100
 select name,SUM(amount) from payments P
 join payment_methods PM on PM.payment_method_id = P.payment_method
 group by name with rollup
+
+--37 subqueries
+select * from employees where salary > (Select avg(salary) from employees);
+
+--38 In operator
+select * from clients where client_id not in (select distinct client_id from invoices)
+
+--39 join vs subquery depends on performance and use case
+select customer_id,first_name,last_name from customers where customer_id in (
+select O.customer_id from order_items OI join orders O on OI.order_id = O.order_id
+where OI.product_id = 3);
+
+--40 All and Any keyword
+select * from invoices where invoice_total > (select max(invoice_total) from invoices where
+client_id = 3);
+--Or using All operator
+select * from invoices where invoice_total > All (select invoice_total from invoices where
+client_id = 3);
+--take min  as above or use the Any keyword with same syntax it works as a IN operator
+
+--41 Correlated queries executes for each for in a table
+select * from invoices i where invoice_total > (
+select avg(invoice_total) from invoices where client_id = i.client_id);
+
+--42 Exists operator checks whether a row matching criteria present
+select * from products p where not exists(
+	select * from order_items o where o.product_id=p.product_id 
+);
+
+--43 subqueries in select
+select *,total_sales-average as diff from
+(select c.client_id,name,sum(invoice_total) as total_sales,(select avg(invoice_total) from invoices) as
+average
+from clients c left join invoices i 
+on c.client_id = i.client_id group by c.client_id,name) tmp;
+
+--44 Subqueries in from 
+select *,total_sales-average as diff from
+(select c.client_id,name,sum(invoice_total) as total_sales,(select avg(invoice_total) from invoices) as
+average
+from clients c left join invoices i 
+on c.client_id = i.client_id group by c.client_id,name) tmp;
+
