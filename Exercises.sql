@@ -192,3 +192,69 @@ average
 from clients c left join invoices i 
 on c.client_id = i.client_id group by c.client_id,name) tmp;
 
+--45 SQL Functions Maths
+select round(2.334,2);
+select ceiling(2.33);
+select floor(2.33);
+select ABS(-2.33);
+select rand(1);
+--removing a digit from number (0 here)
+select (CAST(REPLACE(CAST(Salary AS VARCHAR(10)), '0', '') AS INT));
+
+--string functions
+select LOWER('hello');
+select Upper('hello');
+select Trim('   hello  ');
+select LTrim('   hello  ');
+select RTrim('   hello  ');
+select left('hello',2);
+select right('hello',3);
+select substring('hello',2,4);
+--returns index of first occurence and 0 if not found
+SELECT CHARINDEX('H', 'hello',1); 
+select replace('hello','e','o');
+select concat('hello','world');
+
+--date and time functions
+SELECT SYSDATETIME()
+    ,SYSDATETIMEOFFSET()
+    ,SYSUTCDATETIME()
+    ,CURRENT_TIMESTAMP
+    ,GETDATE()
+    ,GETUTCDATE();
+
+declare @date DateTime;
+set @date = CURRENT_TIMESTAMP;
+select year(@date),month(@date),day(@date),
+CONVERT(VARCHAR(10), @date, 108);
+
+SELECT
+DATENAME(WEEKDAY, @date) as DayName,
+DATEPART(WEEKDAY, @date) as DayOfTheWeek,
+DATENAME(MONTH, @date) As MonthName;
+
+--formatting date and time
+SELECT FORMAT(CURRENT_TIMESTAMP, 'dd-MM-yyyy hh:mm:ss tt')
+
+--calculation in date and time
+select dateadd(year,2,getdate()); 
+select dateadd(year,-2,getdate()); --for subtracting date 
+select dateadd(hour,2,getdate());
+select datediff(day,getdate(),dateadd(day,2,getdate()));
+
+--Isnull and colescce
+use sql_store
+--here datatype should be same
+select isnull(shipper_id,-1) from orders;
+select coalesce(shipper_id,order_id,-1) from orders;
+
+--If Condition
+IF (select order_date from orders where order_id=1)>='2019-01-01' 
+       SELECT order_id,'Active' as category from orders where order_id=1
+ELSE 
+       SELECT order_id,'Old' as category from orders temp where order_id=1
+
+--case condition
+--we use else for default
+select order_id, case when order_date>='2019-01-01' then 'new' 
+when order_date<'2019-01-01' then 'old' else 'unknown' end as status from orders; 
