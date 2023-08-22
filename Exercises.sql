@@ -258,3 +258,28 @@ ELSE
 --we use else for default
 select order_id, case when order_date>='2019-01-01' then 'new' 
 when order_date<'2019-01-01' then 'old' else 'unknown' end as status from orders; 
+
+--Views they do not store data they pickup from underlying table
+-- using create or alter to create else alter if present
+--The ORDER BY clause is invalid in views, inline functions, derived tables, subqueries, 
+--and common table expressions, unless TOP, OFFSET or FOR XML is also specified.
+create or alter view client_balance as
+select c.client_id, name, SUM(invoice_total-payment_total) as balance from invoices i join
+clients c on i.client_id = c.client_id group by c.client_id,name;
+
+select * from client_balance;
+
+--updating records using view
+--views can be update data only when distinct,aggregate,group by,union are not there
+--the view also need to have all the same columns as well
+--Any modifications, including UPDATE, INSERT, and DELETE statements, must reference columns 
+--from only one base table.
+update client_balance set balance=0 where client_id=1;
+delete from client_balance where client_id=1;
+
+--if you update or modify a view some rows may get excluded due to conditions in view
+--to prevent this with check options is used
+
+create or alter view client_balance as
+select c.client_id, name, SUM(invoice_total-payment_total) as balance from invoices i join
+clients c on i.client_id = c.client_id group by c.client_id,name with check option;
