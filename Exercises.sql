@@ -283,3 +283,32 @@ delete from client_balance where client_id=1;
 create or alter view client_balance as
 select c.client_id, name, SUM(invoice_total-payment_total) as balance from invoices i join
 clients c on i.client_id = c.client_id group by c.client_id,name with check option;
+
+--Stored Procs
+--organised and structured code 
+--adds layer of security
+--faster executions(optimisation by sql server its execution flow is stored)
+create or alter procedure get_invoices_with_balance
+as
+select * from client_balance where balance>0;
+
+--add if exists to avoid error if not present
+drop procedure if exists get_invoices_with_balance;
+
+create or alter procedure get_invoices_by_clientid(
+@clientId int)
+as
+if @clientId is null
+--use begin and end to group a set of statements
+Begin
+	select * from clients
+	return;
+end
+if not exists (select * from clients where client_id = @clientId)
+begin
+	throw 50001,'client not found',1;
+end
+select * from clients where client_id = @clientId;
+
+--parameters - @clientId and argument will be its values here null
+exec get_invoices_by_clientid 3;
