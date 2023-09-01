@@ -296,19 +296,71 @@ select * from client_balance where balance>0;
 drop procedure if exists get_invoices_with_balance;
 
 create or alter procedure get_invoices_by_clientid(
-@clientId int)
+@clientId int = 0,
+@message int output)
 as
 if @clientId is null
 --use begin and end to group a set of statements
 Begin
 	select * from clients
-	return;
+	return; 
 end
 if not exists (select * from clients where client_id = @clientId)
 begin
 	throw 50001,'client not found',1;
 end
+else
+begin
+set @message = 1;
 select * from clients where client_id = @clientId;
-
+end
 --parameters - @clientId and argument will be its values here null
-exec get_invoices_by_clientid 3;
+declare @msg int;
+exec get_invoices_by_clientid 3, @msg output;
+select @msg as message;
+
+--Variables
+
+--user/session variables
+EXEC [sys].[sp_set_session_context] @key = 'SecurityObjectUserID'
+                                   ,@value = @SecurityObjectUserID
+                                   ,@read_only = 1;  
+SELECT @SecurityObjectUserID = CONVERT(BIGINT,SESSION_CONTEXT(N'SecurityObjectUserID'));
+
+--local variables inside a sp or function
+Declare @af int = 0;
+--to set a variable value use output
+
+--Functions
+
+--two types scalar and table valued
+
+--scalar
+create or alter function udf_Get_Client_Invoice_Number(
+	@clientId int
+)
+returns int
+as
+begin
+	declare @n int;
+	Set @n = (select count(*) from invoices where client_id = @clientId);
+	return @n;
+end
+
+select dbo.udf_Get_Client_Invoice_Number(2);
+
+--Table Valued
+create or alter function udf_Get_Client_Invoice_Number2(
+	@clientId int
+)
+returns table
+as
+	return select * from invoices where client_id = @clientId;
+
+
+select * from dbo.udf_Get_Client_Invoice_Number2(2);
+
+
+
+
+
