@@ -360,7 +360,40 @@ as
 
 select * from dbo.udf_Get_Client_Invoice_Number2(2);
 
+--Triggers
+--Should modify only that table on which trigger is not acting
+--FOR or AFTER 
+--INSTEAD OF 
 
+--Triggers useful when need to update another table as well in respect of the table we modified
+--also for maintaining logs
+CREATE or alter TRIGGER payment_after_insert_update
+ON payments
+for INSERT, UPDATE
+as
+update invoices set payment_total = payment_total + (select amount from inserted)
+where invoice_id = (select invoice_id from inserted);
 
+insert into payments values(2,2,GetDate(),200,1)
 
+DROP TRIGGER [ IF EXISTS ] [schema_name.]trigger_name [ ,...n ] [ ; ]  
+  
+-- Trigger on a CREATE, ALTER, DROP, GRANT, DENY, REVOKE or UPDATE statement (DDL Trigger)  
+  
+DROP TRIGGER [ IF EXISTS ] trigger_name [ ,...n ]   
+ON { DATABASE | ALL SERVER }   
+[ ; ]  
+  
+-- Trigger on a LOGON event (Logon Trigger)  
+  
+DROP TRIGGER [ IF EXISTS ] trigger_name [ ,...n ]   
+ON ALL SERVER  
 
+--For checking if a trigger or any other object exists
+IF OBJECT_ID ('employee_insupd', 'TR') IS NOT NULL
+	Select 'Found';
+
+--Events in Sql Server
+--You can use Sql server agent for this task and you can schedule there. Its easy way.
+--Another one is "waitfor time" check this link http://msdn.microsoft.com/en-IN/library/ms187331.aspx (and you need to create a trigger with while loop logic and there wait for time is useful)
+--Another one create a bat file and schedule that in windows scheduler (if you are using sql sever express edition)
