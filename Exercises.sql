@@ -397,3 +397,71 @@ IF OBJECT_ID ('employee_insupd', 'TR') IS NOT NULL
 --You can use Sql server agent for this task and you can schedule there. Its easy way.
 --Another one is "waitfor time" check this link http://msdn.microsoft.com/en-IN/library/ms187331.aspx (and you need to create a trigger with while loop logic and there wait for time is useful)
 --Another one create a bat file and schedule that in windows scheduler (if you are using sql sever express edition)
+
+--Transactions A single unit of work follows ACID properties
+begin tran s1
+--if anything in a transaction fails whole block will be roll backed
+--@@trancount increases for every begin statement and decreases for commit transaction
+select @@TRANCOUNT;
+begin tran s2
+select @@TRANCOUNT
+select @@TRANCOUNT
+commit tran s2
+if 3>1
+	rollback tran s1
+else
+	commit tran s1
+select @@TRANCOUNT
+
+--concurrency whenever two user try to update same column sql waits for the first command to be either
+--commit or rollback
+
+--transaction isolation levels
+--problems(lost updates,dirty reads,non -rep. reads,phantom reads)
+--read uncommited all problems present
+--read commited prevents dirty reads
+--repeatable read prevents till non repeatable read
+--serialisable prevents all problem highest level of isolation but if large amount of data and users 
+--it will slow down system
+
+--lower the isolation level more perf or concurrency we can achieve
+SET TRANSACTION ISOLATION LEVEL
+    { READ UNCOMMITTED
+    | READ COMMITTED
+    | REPEATABLE READ
+    | SNAPSHOT
+    | SERIALIZABLE
+    };
+
+--Deadlocks as sql locks the records which are not being committed sometime it causes deadlock
+--we can minimise it by keepind modify/add operation in tables in order for ex eployee then item table
+--or we can create short transactions so that they end quickly
+
+with nolock;
+
+-- Enum tye in sql server
+rank  ENUM ('Fresh meat', 'Intern','Janitor','Lieutenant','Supreme being')DEFAULT 'Fresh meat';
+--but not recommended to use as we have to change everywhere better to have a enum table and then use it 
+
+--timestamp and datetime
+--the timestamp dt has a bug called 2038 ptoblem in which it can store date till 2038 only
+
+--Blob types
+--it is not recommended to store files in db itself as it can lead to storage and performance issues
+--instead use Filestream,FileTables,RBT(Remote blob storage)
+
+--Json types refer docs for more clarity useful as we wont have to create multiple columns 
+-- can stroe in two ways LOB storage(nvarchar max) and relational storage(more time as it is parsed)
+--use nvarchar(max) 
+--for checking format
+ADD CONSTRAINT [Log record should be formatted as JSON]
+                   CHECK (ISJSON(log)=1)
+
+-- if retrieval frequent using property use index
+severity AS JSON_VALUE(log, '$.severity'),
+    index ix_severity (severity)
+
+ with (memory_optimized=on) -- for optimisation
+
+-- example json variable
+SET @json = '{"info": {"address": [{"town": "Belgrade"}, {"town": "Paris"}, {"town":"Madrid"}]}}';
