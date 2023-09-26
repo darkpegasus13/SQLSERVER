@@ -465,3 +465,30 @@ severity AS JSON_VALUE(log, '$.severity'),
 
 -- example json variable
 SET @json = '{"info": {"address": [{"town": "Belgrade"}, {"town": "Paris"}, {"town":"Madrid"}]}}';
+
+--Indexing 
+select state from customers where state='CA'
+
+drop index customers.idx_points 
+
+--non clustered if creating clustered specify explicitly
+create index idx_state on customers(state)
+
+--prefix indexes when using index on string type columns to reduce space used
+create index idx_state on customers(last_name)
+
+--full text index for searching in large set of string data
+--set using UI in sql server
+
+--composite index for applying index on two columns altogether
+create index idx_state_points on customers(state,points)
+
+--In some cases index may not work properly use the union operator in these cases
+--individual column indexes would be invoked and would be giving better results
+
+select * from customers where state='CA'
+union
+select * from customers where points>1000
+
+--Users and Securing database
+--https://www.tutorialsteacher.com/sqlserver/create-new-user
